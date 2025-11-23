@@ -31,7 +31,7 @@ export const getProject = async (req, res) => {
     const q = `
       SELECT project_id, project_name, description, status, priority, start_date, end_date, created_by, created_at, updated_at
       FROM projects
-      WHERE project_id = $1
+      WHERE project_id = $1 AND is_active = true
     `;
     const { rows } = await pool.query(q, [id]);
     if (rows.length === 0) return res.status(404).json({ error: 'Project not found' });
@@ -44,28 +44,29 @@ export const getProject = async (req, res) => {
 
 /**
  * GET /api/projects/:id/tasks
- * Return tasks for a given project
+ * Return tasks for a given project with primary assignee
  */
 export const getProjectTasks = async (req, res) => {
   try {
     const { id } = req.params;
     const q = `
-      SELECT task_id, task_name, description, status, priority, start_date, due_date, assigned_to
-      FROM tasks
-      WHERE project_id = $1 AND is_active = true
-      ORDER BY created_at ASC
-    `;
-    // Note: 'assigned_to' is not in schema directly; tasks have task_assignments table.
-    // We'll join to bring primary assignee if present.
-    const q2 = `
-      SELECT t.task_id, t.task_name, t.description, t.status, t.priority, t.start_date, t.due_date,
-             ta.member_id AS assigned_member_id
+      SELECT 
+        t.task_id, 
+        t.task_name, 
+        t.description, 
+        t.status, 
+        t.priority, 
+        t.start_date, 
+        t.due_date,
+        ta.member_id AS assigned_member_id,
+        m.full_name AS assigned_member_name
       FROM tasks t
       LEFT JOIN task_assignments ta ON ta.task_id = t.task_id AND ta.is_primary = true
+      LEFT JOIN members m ON m.member_id = ta.member_id
       WHERE t.project_id = $1 AND t.is_active = true
       ORDER BY t.created_at ASC
     `;
-    const { rows } = await pool.query(q2, [id]);
+    const { rows } = await pool.query(q, [id]);
     return res.json(rows);
   } catch (err) {
     console.error('getProjectTasks error', err);
