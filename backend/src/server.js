@@ -5,6 +5,9 @@ import { errorHandler } from './middleware/errorHandler.js';
 import authRoutes from './routes/auth.js';
 import teamsRoutes from './routes/teams.js';
 import projectsRoutes from './routes/projects.js';
+import tasksRoutes from './routes/tasks.js';
+import membersRoutes from './routes/members.js';
+import { initializeCronJobs } from './config/cronScheduler.js';
 
 dotenv.config();
 
@@ -24,6 +27,8 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/teams', teamsRoutes);
 app.use('/api/projects', projectsRoutes);
+app.use('/api/tasks', tasksRoutes);
+app.use('/api/members', membersRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -31,6 +36,9 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use(errorHandler);
+
+// Initialize cron jobs
+initializeCronJobs();
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

@@ -132,3 +132,42 @@ export const joinTeam = async (req, res) => {
     return res.status(500).json({ error: 'Failed to join team' });
   }
 };
+
+/**
+ * POST /api/teams
+ * Create a new team (Admin only)
+ */
+export const createTeam = async (req, res) => {
+  try {
+    const { team_name, description } = req.body;
+    const userId = req.user.user_id;
+    
+    if (!team_name || !team_name.trim()) {
+      return res.status(400).json({ error: 'Team name is required' });
+    }
+    
+    // Check if team name already exists
+    const existingTeam = await pool.query(
+      'SELECT team_id FROM teams WHERE team_name = $1',
+      [team_name.trim()]
+    );
+    
+    if (existingTeam.rows.length > 0) {
+      return res.status(400).json({ error: 'Team name already exists' });
+    }
+    
+    // Create team
+    const q = `
+      INSERT INTO teams (team_name, description, team_leader_id)
+      VALUES ($1, $2, $3)
+      RETURNING *
+    `;
+    
+    const { rows } = await pool.query(q, [team_name.trim(), description?.trim() || null, userId]);
+    
+    return res.json(rows[0]);
+  } catch (err) {
+    console.error('createTeam error', err);
+    return res.status(500).json({ error: 'Failed to create team' });
+  }
+};
