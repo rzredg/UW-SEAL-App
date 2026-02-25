@@ -8,10 +8,22 @@ import pool from '../config/db.js';
 export const listProjects = async (req, res) => {
   try {
     const q = `
-      SELECT project_id, project_name, description, status, priority, start_date, end_date
-      FROM projects
-      WHERE is_active = true
-      ORDER BY created_at DESC
+      SELECT 
+        p.project_id, 
+        p.project_name, 
+        p.description, 
+        p.status, 
+        p.priority, 
+        p.start_date, 
+        p.end_date,
+        STRING_AGG(DISTINCT t.team_name, ', ' ORDER BY t.team_name) AS teams,
+        STRING_AGG(DISTINCT t.team_id::text, ',') AS team_ids
+      FROM projects p
+      LEFT JOIN team_projects tp ON tp.project_id = p.project_id
+      LEFT JOIN teams t ON t.team_id = tp.team_id
+      WHERE p.is_active = true
+      GROUP BY p.project_id, p.project_name, p.description, p.status, p.priority, p.start_date, p.end_date
+      ORDER BY p.created_at DESC
     `;
     const { rows } = await pool.query(q);
     return res.json(rows);

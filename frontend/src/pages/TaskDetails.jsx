@@ -55,6 +55,7 @@ export default function TaskDetails() {
       await api.post(`/tasks/${id}/progress`, { note: newNote });
       setNewNote("");
       await loadProgressNotes();
+      await loadTask(); // Reload to update last_updated
     } catch (err) {
       console.error("Failed to add note:", err);
       alert("Failed to add progress note");
@@ -83,6 +84,21 @@ export default function TaskDetails() {
       case 'Low': return 'bg-secondary';
       default: return 'bg-secondary';
     }
+  };
+
+  const getStaleBadgeClass = (staleStatus) => {
+    switch (staleStatus) {
+      case 'IGNORE': return 'bg-warning text-dark';
+      case 'STALE': return 'bg-danger';
+      case 'ABANDONED': return 'bg-dark';
+      default: return '';
+    }
+  };
+
+  const formatDateTime = (dateString) => {
+    if (!dateString) return 'Never';
+    const date = new Date(dateString);
+    return date.toLocaleString();
   };
 
   const statuses = ['1. To Do', '2. Doing', '3. Review', '4. Done (Approved)', 'Icebox', 'Not Applicable'];
@@ -114,9 +130,14 @@ export default function TaskDetails() {
                 <span className={`badge ${getStatusBadgeClass(task.status)} me-2`}>
                   {task.status}
                 </span>
-                <span className={`badge ${getPriorityBadgeClass(task.priority)}`}>
+                <span className={`badge ${getPriorityBadgeClass(task.priority)} me-2`}>
                   {task.priority} Priority
                 </span>
+                {task.stale_status && (
+                  <span className={`badge ${getStaleBadgeClass(task.stale_status)}`}>
+                    {task.stale_status}
+                  </span>
+                )}
               </div>
 
               {task.description && (
@@ -157,6 +178,15 @@ export default function TaskDetails() {
                     <strong>Due Date:</strong> {new Date(task.due_date).toLocaleDateString()}
                   </div>
                 )}
+              </div>
+
+              <div className="row mb-3">
+                <div className="col-md-6">
+                  <strong>Created:</strong> {formatDateTime(task.created_at)}
+                </div>
+                <div className="col-md-6">
+                  <strong>Last Updated:</strong> {formatDateTime(task.last_updated || task.updated_at)}
+                </div>
               </div>
 
               <hr />
@@ -255,6 +285,22 @@ export default function TaskDetails() {
               </Link>
             </div>
           </div>
+
+          {task.stale_status && (
+            <div className="card mt-3">
+              <div className="card-header bg-warning">
+                <h5 className="mb-0">⚠️ Stale Task Alert</h5>
+              </div>
+              <div className="card-body">
+                <p className="mb-2">
+                  <strong>Status:</strong> <span className={`badge ${getStaleBadgeClass(task.stale_status)}`}>{task.stale_status}</span>
+                </p>
+                <p className="small text-muted mb-0">
+                  This task hasn't been updated in a while. Please add a progress note or update the status to keep it active.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

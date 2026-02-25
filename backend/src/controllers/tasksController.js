@@ -18,6 +18,7 @@ export const getMyTasks = async (req, res) => {
         t.priority,
         t.start_date,
         t.due_date,
+        t.last_updated,
         t.estimated_hours,
         t.actual_hours,
         t.created_at,

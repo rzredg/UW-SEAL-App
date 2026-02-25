@@ -45,6 +45,13 @@ export default function Navbar() {
                 SEAL Clan Life
               </Link>
             </li>
+            {user?.role === 'Admin' && (
+              <li className="nav-item">
+                <Link to="/admin" className="nav-link">
+                  Admin Panel
+                </Link>
+              </li>
+            )}
           </ul>
         )}
 

@@ -14,6 +14,7 @@ import CreateProject from "./pages/CreateProject.jsx";
 import TaskDetails from "./pages/TaskDetails.jsx";
 import CreateTask from "./pages/CreateTask.jsx";
 import SealClanLife from "./pages/SealClanLife.jsx";
+import AdminPanel from "./pages/AdminPanel.jsx";
 
 export default function App() {
   return (
@@ -40,6 +41,8 @@ export default function App() {
           <Route path="/tasks/:id" element={<ProtectedRoute><TaskDetails /></ProtectedRoute>} />
           
           <Route path="/clan-life" element={<ProtectedRoute><SealClanLife /></ProtectedRoute>} />
+
+          <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

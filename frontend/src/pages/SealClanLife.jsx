@@ -47,6 +47,12 @@ export default function SealClanLife() {
     }
   };
 
+  const getHPBadgeClass = (hp) => {
+    if (hp >= 4) return 'bg-success';
+    if (hp >= 2) return 'bg-warning';
+    return 'bg-danger';
+  };
+
   if (loading) {
     return (
       <div className="container mt-4">
@@ -110,6 +116,8 @@ export default function SealClanLife() {
                   <th>Team(s)</th>
                   <th>Major</th>
                   <th>Year</th>
+                  <th className="text-center">HP</th>
+                  <th className="text-center">Gold</th>
                 </tr>
               </thead>
               <tbody>
@@ -134,6 +142,14 @@ export default function SealClanLife() {
                     </td>
                     <td className="text-muted small">{member.major || '—'}</td>
                     <td className="text-muted small">{member.year_level || '—'}</td>
+                    <td className="text-center">
+                      <span className={`badge ${getHPBadgeClass(member.health_points || 0)}`}>
+                        {member.health_points || 0}/5
+                      </span>
+                    </td>
+                    <td className="text-center">
+                      {member.gold_medals || 0}
+                    </td>
                   </tr>
                 ))}
               </tbody>
