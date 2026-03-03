@@ -6,7 +6,10 @@ export default function Navbar() {
   const { user, logout } = useContext(AuthContext);
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-3">
+    <nav 
+      className="navbar navbar-expand-lg navbar-dark px-3"
+      style={{ backgroundColor: "#4B0082" }}
+    >
       <Link to="/" className="navbar-brand">
         UW SEAL
       </Link>
@@ -59,7 +62,7 @@ export default function Navbar() {
           {!user ? (
             <>
               <Link to="/login" className="btn btn-outline-light me-2">Login</Link>
-              <Link to="/register" className="btn btn-primary">Register</Link>
+              <Link to="/register" className="btn btn-outline-light me-2">Register</Link>
             </>
           ) : (
             <>
